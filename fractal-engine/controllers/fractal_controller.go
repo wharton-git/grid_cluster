@@ -49,7 +49,6 @@ func GenerateFractal(c *gin.Context) {
 }
 
 func generateMandelbrot(iters int, sizeStr string, cx, cy, zoom float64, dev bool) []models.Point {
-
 	if zoom <= 0 {
 		zoom = 1
 	}
@@ -59,7 +58,6 @@ func generateMandelbrot(iters int, sizeStr string, cx, cy, zoom float64, dev boo
 		zoom = 1
 	} else {
 		iters = int(float64(iters) * (1 + math.Log10(zoom+1)))
-
 		if iters > 5000 {
 			iters = 5000
 		}
@@ -73,17 +71,20 @@ func generateMandelbrot(iters int, sizeStr string, cx, cy, zoom float64, dev boo
 		if sizeStr == "large" {
 			res = 600
 		}
+
+		res = int(float64(res) * math.Sqrt(zoom))
+		if res > 1200 {
+			res = 1200
+		}
 	}
 
 	points := make([]models.Point, 0)
-
-	scale := 1.0 / zoom
+	scale := 3.5 / float64(res) / zoom 
 
 	for px := 0; px < res; px++ {
 		for py := 0; py < res; py++ {
-
-			x0 := cx + (float64(px)-float64(res)/2)*scale/float64(res)*3.5
-			y0 := cy + (float64(py)-float64(res)/2)*scale/float64(res)*2.0
+			x0 := cx + (float64(px)-float64(res)/2)*scale
+			y0 := cy + (float64(py)-float64(res)/2)*(scale*2/3.5)
 
 			x, y := 0.0, 0.0
 			iteration := 0
@@ -95,11 +96,13 @@ func generateMandelbrot(iters int, sizeStr string, cx, cy, zoom float64, dev boo
 				iteration++
 			}
 
-			points = append(points, models.Point{
-				X: float64(px),
-				Y: float64(py),
-				I: iteration,
-			})
+			if iteration == iters {
+				points = append(points, models.Point{
+					X: float64(px),
+					Y: float64(py),
+					I: iteration,
+				})
+			}
 		}
 	}
 

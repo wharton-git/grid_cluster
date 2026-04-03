@@ -4,6 +4,7 @@ export type Data = {
     type : 'mandelbrot' | 'barnsley';
     iterations : number;
     size : 'small' | 'medium' | 'large';
+    devMode : boolean;
 }
 
 export type Point = {
