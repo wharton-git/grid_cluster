@@ -1,3 +1,5 @@
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 import axios, { type AxiosResponse } from "axios";
 import { type Data, type FractalResponse } from "./types";
 
@@ -5,7 +7,7 @@ import { type Data, type FractalResponse } from "./types";
 export async function generateFractal(data: Data): Promise<FractalResponse | null> {
     try {
         const response: AxiosResponse<FractalResponse> = await axios.post(
-            "http://192.168.83.66:6543/api/generate", 
+            `${BASE_URL}/generate`, 
             data
         );
 

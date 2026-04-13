@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fractal-engine
+  namespace: xeon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fractal-engine
+  template:
+    metadata:
+      labels:
+        app: fractal-engine
+    spec:
+      containers:
+      - name: fractal-engine
+        image: europe-west1-docker.pkg.dev/project-45a76f06-067f-40f7-9a4/fractal-repo/fractal-engine:v1
+        ports:
+        - containerPort: 6543
+        env:
+        - name: PORT
+          value: "6543"
+        resources:
+          requests:
+            cpu: "100m"  
+          limits:
+            cpu: "500m"  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fractal-service
+  namespace: xeon
+spec:
+  type: LoadBalancer
+  selector:
+    app: fractal-engine
+  ports:
+  - protocol: TCP
+    port: 80         
+    targetPort: 6543 

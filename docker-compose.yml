@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./fractal-engine
+    container_name: fractal-backend
+    ports:
+      - "6543:6543"
+    environment:
+      - GIN_MODE=release
+      - PORT=6543
+    restart: always
+
+  # frontend:
+  #   build: ./fractal-web
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend

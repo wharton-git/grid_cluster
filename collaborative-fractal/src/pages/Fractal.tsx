@@ -39,11 +39,11 @@ const Fractal: React.FC<FractalProps> = ({ onNavigate }) => {
         }));
     };
 
-    const handleDevToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDevMode(e.target.value === "dev");
-    };
+    // const handleDevToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setDevMode(e.target.value === "dev");
+    // };
 
-    const fetchFractal = useCallback(async (data: Data, cx = center.x, cy = center.y, z = zoom) => {
+    const fetchFractal = useCallback(async (data: Data, _cx = center.x, _cy = center.y, _z = zoom) => {
         try {
             const response = await generateFractal({ ...data, devMode });
             if (response?.points) {
