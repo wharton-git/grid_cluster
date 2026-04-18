@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: cloud-scaling-demo
+data:
+  NGINX_BACKEND_UPSTREAM: http://backend-service.cloud-scaling-demo.svc.cluster.local:6543

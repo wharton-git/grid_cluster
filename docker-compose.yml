@@ -1,17 +1,26 @@
 services:
   backend:
     build: ./fractal-engine
-    container_name: fractal-backend
+    container_name: cloud-scaling-demo-backend
     ports:
       - "6543:6543"
     environment:
-      - GIN_MODE=release
-      - PORT=6543
+      PORT: "6543"
+      APP_NAME: "cloud-scaling-demo-api"
+      APP_VERSION: "1.0.0"
+      APP_ENV: "docker-compose"
+      APP_REGION: "local-lab"
+      APP_INSTANCE_ID: "backend-compose"
+      ALLOWED_ORIGINS: "http://localhost:8080,http://127.0.0.1:8080"
     restart: always
 
-  # frontend:
-  #   build: ./fractal-web
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
+  frontend:
+    build: ./collaborative-fractal
+    container_name: cloud-scaling-demo-frontend
+    ports:
+      - "8080:80"
+    environment:
+      NGINX_BACKEND_UPSTREAM: "http://backend:6543"
+    depends_on:
+      - backend
+    restart: always

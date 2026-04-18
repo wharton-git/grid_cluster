@@ -1,0 +1,206 @@
+import {
+	Activity,
+	CheckCircle2,
+	Clock3,
+	Play,
+	RefreshCw,
+	Square,
+} from "lucide-react";
+import {
+	formatCompactTimestamp,
+	formatDuration,
+	formatTimestamp,
+} from "../lib/format";
+import type {
+	BackendState,
+	InfoPayload,
+	RequestRecord,
+	StatusPayload,
+} from "../types/demo";
+import { SectionHeader } from "./SectionHeader";
+
+type BackendMonitoringProps = {
+	backendState: BackendState;
+	isCheckingBackend: boolean;
+	isMonitoring: boolean;
+	monitoringRequests: RequestRecord[];
+	lastBackendCheckAt: string | null;
+	latestInfo: InfoPayload | null;
+	latestStatus: StatusPayload | null;
+	onCheckBackend: () => void;
+	onToggleMonitoring: () => void;
+};
+
+const stateBadgeClass = (backendState: BackendState) => {
+	switch (backendState) {
+		case "ok":
+			return "badge badge-success";
+		case "down":
+			return "badge badge-error";
+		case "loading":
+			return "badge badge-warning";
+		default:
+			return "badge badge-outline";
+	}
+};
+
+const stateLabel = (backendState: BackendState) => {
+	switch (backendState) {
+		case "ok":
+			return "Backend: OK";
+		case "down":
+			return "Backend: DOWN";
+		case "loading":
+			return "Backend: LOADING";
+		default:
+			return "Backend: IDLE";
+	}
+};
+
+export function BackendMonitoring({
+	backendState,
+	isCheckingBackend,
+	isMonitoring,
+	monitoringRequests,
+	lastBackendCheckAt,
+	latestInfo,
+	latestStatus,
+	onCheckBackend,
+	onToggleMonitoring,
+}: BackendMonitoringProps) {
+	return (
+		<section className="surface-card p-6 sm:p-7">
+			<div className="flex flex-col gap-6">
+				<SectionHeader
+					eyebrow="Backend Monitoring"
+					title="Checks backend controles"
+					description="Aucun appel n est envoye au chargement. Tu peux verifier le backend manuellement ou activer un monitoring leger avec intervalle long, sans polluer le tableau principal."
+				/>
+
+				<div className="grid gap-4 rounded-[1.4rem] border border-base-300/70 bg-base-200/55 p-4 md:grid-cols-3">
+					<div>
+						<p className="mb-2 text-sm text-base-content/58">Etat</p>
+						<div className="flex items-center gap-2">
+							<span className={stateBadgeClass(backendState)}>
+								{stateLabel(backendState)}
+							</span>
+							{isCheckingBackend ? (
+								<RefreshCw className="size-4 animate-spin text-base-content/55" />
+							) : null}
+						</div>
+					</div>
+					<div>
+						<p className="mb-2 text-sm text-base-content/58">Monitoring</p>
+						<p className="text-sm font-medium text-primary">
+							{isMonitoring ? "Actif (8s)" : "Arrete"}
+						</p>
+					</div>
+					<div>
+						<p className="mb-2 text-sm text-base-content/58">Derniere verification</p>
+						<p className="text-sm font-medium text-primary">
+							{lastBackendCheckAt
+								? formatCompactTimestamp(lastBackendCheckAt)
+								: "Aucune encore"}
+						</p>
+					</div>
+				</div>
+
+				<div className="flex flex-col gap-3 sm:flex-row">
+					<button
+						className="btn btn-primary rounded-full px-6"
+						onClick={onCheckBackend}
+						disabled={isCheckingBackend}
+					>
+						<Activity className="size-4" />
+						Check backend
+					</button>
+					<button
+						className="btn btn-neutral rounded-full px-6"
+						onClick={onToggleMonitoring}
+					>
+						{isMonitoring ? (
+							<Square className="size-4" />
+						) : (
+							<Play className="size-4" />
+						)}
+						{isMonitoring ? "Stop monitoring" : "Start monitoring"}
+					</button>
+				</div>
+
+				<div className="grid gap-4 lg:grid-cols-2">
+					<div className="rounded-[1.5rem] border border-base-300/75 bg-base-200/45 p-5">
+						<div className="mb-4 flex items-center gap-2 text-sm text-base-content/60">
+							<Clock3 className="size-4" />
+							Snapshot backend
+						</div>
+						<div className="space-y-3 text-sm">
+							<p>
+								<span className="font-medium text-primary">Pod:</span>{" "}
+								{latestStatus?.podName ?? latestInfo?.podName ?? "inconnu"}
+							</p>
+							<p>
+								<span className="font-medium text-primary">Uptime:</span>{" "}
+								{latestStatus?.uptime ?? latestInfo?.uptime ?? "n/a"}
+							</p>
+							<p>
+								<span className="font-medium text-primary">Request count:</span>{" "}
+								{latestStatus?.requestCount ?? 0}
+							</p>
+							<p>
+								<span className="font-medium text-primary">Latence moyenne:</span>{" "}
+								{formatDuration(latestStatus?.averageResponseTimeMs ?? 0)}
+							</p>
+							<p>
+								<span className="font-medium text-primary">Environnement:</span>{" "}
+								{latestInfo?.environment ?? "n/a"}
+							</p>
+							<p>
+								<span className="font-medium text-primary">Region:</span>{" "}
+								{latestInfo?.region ?? "n/a"}
+							</p>
+						</div>
+					</div>
+
+					<div className="rounded-[1.5rem] h-[28rem] overflow-y-auto border border-base-300/75 bg-base-200/45 p-5">
+						<div className="mb-4 flex items-center gap-2 text-sm text-base-content/60">
+							<CheckCircle2 className="size-4" />
+							Historique monitoring
+						</div>
+						<div className="space-y-3">
+							{monitoringRequests.length === 0 ? (
+								<p className="text-sm text-base-content/65">
+									Aucun check backend pour le moment. Le service reste idle
+									tant que tu ne cliques pas.
+								</p>
+							) : (
+								monitoringRequests.map((request) => (
+									<div
+										key={request.id}
+										className="flex flex-wrap items-center justify-between gap-3 rounded-[1.15rem] border border-base-300/70 bg-base-100/75 px-4 py-3"
+									>
+										<div>
+											<p className="text-sm font-medium text-primary">
+												{request.endpoint}
+											</p>
+											<p className="text-xs text-base-content/58">
+												{formatTimestamp(request.timestamp)}
+											</p>
+										</div>
+										<div className="text-right text-sm">
+											<p className="font-medium text-primary">{request.podName}</p>
+											<p className="text-base-content/58">
+												{request.statusCode === 0
+													? request.statusText
+													: `${request.statusCode} | ${formatDuration(request.durationMs)}`}
+											</p>
+										</div>
+									</div>
+								))
+							)}
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+}

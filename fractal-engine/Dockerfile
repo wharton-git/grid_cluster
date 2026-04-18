@@ -1,24 +1,26 @@
-FROM golang:alpine AS builder
+FROM golang:1.26-alpine AS builder
 
-RUN apk add --no-cache git
-
-WORKDIR /app
+WORKDIR /src
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /fractal-engine main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -trimpath \
+    -ldflags="-s -w" \
+    -o /out/cloud-scaling-demo-backend \
+    ./main.go
 
-FROM alpine:latest
+FROM gcr.io/distroless/static-debian12:nonroot
 
-RUN apk --no-cache add ca-certificates
+WORKDIR /app
 
-WORKDIR /root/
-
-COPY --from=builder /fractal-engine .
+COPY --from=builder /out/cloud-scaling-demo-backend /app/server
 
 EXPOSE 6543
 
-CMD ["./fractal-engine"]
+ENV PORT=6543
+
+ENTRYPOINT ["/app/server"]
