@@ -48,7 +48,11 @@ export const summarizePods = (requests: RequestRecord[]): PodObservation[] => {
 	>();
 
 	for (const request of requests) {
-		if (!request.podName || request.podName === "unreachable") {
+		if (
+			!request.podName ||
+			request.podName === "unreachable" ||
+			request.podName === "cancelled"
+		) {
 			continue;
 		}
 

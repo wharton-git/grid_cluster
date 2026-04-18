@@ -2,6 +2,11 @@ export type TestType = "health" | "info" | "cpu" | "latency" | "mixed" | "status
 
 export type Intensity = "low" | "medium" | "high";
 export type BackendState = "idle" | "loading" | "ok" | "down";
+export type AppRuntimeState =
+	| "idle"
+	| "test_running"
+	| "monitoring"
+	| "stop_requested";
 
 export type FormState = {
 	testType: TestType;
@@ -25,6 +30,7 @@ export type RequestRecord = {
 	ok: boolean;
 	response: unknown;
 	errorMessage?: string;
+	cancelled?: boolean;
 };
 
 export type StatusPayload = {

@@ -116,6 +116,9 @@ const buildParamsLabel = (params: Record<string, string>) => {
 export const runDemoRequest = async (
 	testType: TestType,
 	form: FormState,
+	options?: {
+		signal?: AbortSignal;
+	},
 ): Promise<RequestRecord> => {
 	const { path, params } = buildEndpoint(testType, form);
 	const endpoint = buildEndpointLabel(path, params);
@@ -125,6 +128,7 @@ export const runDemoRequest = async (
 		const response = await axios.get(`${API_BASE_URL}${path}`, {
 			params,
 			timeout: buildTimeout(testType, form),
+			signal: options?.signal,
 			headers: {
 				Accept: "application/json",
 			},
@@ -148,6 +152,27 @@ export const runDemoRequest = async (
 		const durationMs = Math.round(performance.now() - startedAt);
 
 		if (axios.isAxiosError(error)) {
+			if (error.code === "ERR_CANCELED") {
+				return {
+					id: crypto.randomUUID(),
+					testType,
+					endpoint,
+					paramsLabel: buildParamsLabel(params),
+					durationMs,
+					statusCode: 0,
+					statusText: "Cancelled",
+					podName: "cancelled",
+					timestamp: new Date().toISOString(),
+					ok: false,
+					response: {
+						error: "cancelled",
+						message: "La requete a ete annulee.",
+					},
+					errorMessage: "La requete a ete annulee.",
+					cancelled: true,
+				};
+			}
+
 			const payload = error.response?.data ?? {
 				error: "network_error",
 				message: error.message,

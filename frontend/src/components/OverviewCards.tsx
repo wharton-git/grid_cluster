@@ -6,7 +6,12 @@ import {
 	ShieldCheck,
 } from "lucide-react";
 import { formatAverage } from "../lib/format";
-import type { BackendState, InfoPayload, StatusPayload } from "../types/demo";
+import type {
+	AppRuntimeState,
+	BackendState,
+	InfoPayload,
+	StatusPayload,
+} from "../types/demo";
 
 type OverviewCardsProps = {
 	backendState: BackendState;
@@ -17,6 +22,8 @@ type OverviewCardsProps = {
 	averageClientLatencyMs: number;
 	latestPodName: string | null;
 	isRunning: boolean;
+	isMonitoringActive: boolean;
+	appRuntimeState: AppRuntimeState;
 };
 
 const availabilityClass = (backendState: BackendState) => {
@@ -54,6 +61,8 @@ export function OverviewCards({
 	averageClientLatencyMs,
 	latestPodName,
 	isRunning,
+	isMonitoringActive,
+	appRuntimeState,
 }: OverviewCardsProps) {
 	return (
 		<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -106,7 +115,7 @@ export function OverviewCards({
 						<Clock3 className="size-4" />
 						Runtime demo
 					</div>
-					{isRunning ? (
+					{isRunning || isMonitoringActive ? (
 						<RefreshCw className="size-4 animate-spin text-base-content/55" />
 					) : null}
 				</div>
@@ -115,7 +124,14 @@ export function OverviewCards({
 				</p>
 				<p className="mt-2 text-sm text-base-content/68">
 					Appels journalises. Env: {latestInfo?.environment ?? "indetermine"}.
-					Region: {latestInfo?.region ?? "inconnue"}.
+					Region: {latestInfo?.region ?? "inconnue"}. Etat app:{" "}
+					{appRuntimeState === "idle"
+						? "idle"
+						: appRuntimeState === "test_running"
+							? "test en cours"
+							: appRuntimeState === "monitoring"
+								? "monitoring actif"
+								: "arret demande"}.
 				</p>
 			</div>
 		</section>

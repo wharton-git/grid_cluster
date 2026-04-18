@@ -12,6 +12,7 @@ import {
 	formatTimestamp,
 } from "../lib/format";
 import type {
+	AppRuntimeState,
 	BackendState,
 	InfoPayload,
 	RequestRecord,
@@ -21,8 +22,12 @@ import { SectionHeader } from "./SectionHeader";
 
 type BackendMonitoringProps = {
 	backendState: BackendState;
+	appRuntimeState: AppRuntimeState;
 	isCheckingBackend: boolean;
-	isMonitoring: boolean;
+	isManualMonitoringEnabled: boolean;
+	isMonitoringActive: boolean;
+	monitoringModeLabel: string;
+	isStopRequested: boolean;
 	monitoringRequests: RequestRecord[];
 	lastBackendCheckAt: string | null;
 	latestInfo: InfoPayload | null;
@@ -59,8 +64,12 @@ const stateLabel = (backendState: BackendState) => {
 
 export function BackendMonitoring({
 	backendState,
+	appRuntimeState,
 	isCheckingBackend,
-	isMonitoring,
+	isManualMonitoringEnabled,
+	isMonitoringActive,
+	monitoringModeLabel,
+	isStopRequested,
 	monitoringRequests,
 	lastBackendCheckAt,
 	latestInfo,
@@ -77,7 +86,7 @@ export function BackendMonitoring({
 					description="Aucun appel n est envoye au chargement. Tu peux verifier le backend manuellement ou activer un monitoring leger avec intervalle long, sans polluer le tableau principal."
 				/>
 
-				<div className="grid gap-4 rounded-[1.4rem] border border-base-300/70 bg-base-200/55 p-4 md:grid-cols-3">
+				<div className="grid gap-4 rounded-[1.4rem] border border-base-300/70 bg-base-200/55 p-4 md:grid-cols-2 xl:grid-cols-4">
 					<div>
 						<p className="mb-2 text-sm text-base-content/58">Etat</p>
 						<div className="flex items-center gap-2">
@@ -90,9 +99,21 @@ export function BackendMonitoring({
 						</div>
 					</div>
 					<div>
+						<p className="mb-2 text-sm text-base-content/58">Activite app</p>
+						<p className="text-sm font-medium text-primary">
+							{appRuntimeState === "idle"
+								? "idle"
+								: appRuntimeState === "test_running"
+									? "test en cours"
+									: appRuntimeState === "monitoring"
+										? "monitoring actif"
+										: "arret manuel demande"}
+						</p>
+					</div>
+					<div>
 						<p className="mb-2 text-sm text-base-content/58">Monitoring</p>
 						<p className="text-sm font-medium text-primary">
-							{isMonitoring ? "Actif (8s)" : "Arrete"}
+							{isMonitoringActive ? monitoringModeLabel : "Arrete"}
 						</p>
 					</div>
 					<div>
@@ -118,14 +139,22 @@ export function BackendMonitoring({
 						className="btn btn-neutral rounded-full px-6"
 						onClick={onToggleMonitoring}
 					>
-						{isMonitoring ? (
+						{isManualMonitoringEnabled ? (
 							<Square className="size-4" />
 						) : (
 							<Play className="size-4" />
 						)}
-						{isMonitoring ? "Stop monitoring" : "Start monitoring"}
+						{isManualMonitoringEnabled
+							? "Stop monitoring"
+							: "Start monitoring"}
 					</button>
 				</div>
+				{isStopRequested ? (
+					<div className="rounded-[1.2rem] border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning">
+						Arret manuel demande. Les nouvelles requetes de test sont bloquees et
+						le monitoring temporaire associe est en train de s arreter.
+					</div>
+				) : null}
 
 				<div className="grid gap-4 lg:grid-cols-2">
 					<div className="rounded-[1.5rem] border border-base-300/75 bg-base-200/45 p-5">

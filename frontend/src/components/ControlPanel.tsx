@@ -1,4 +1,4 @@
-import { Clock3, Gauge, Play, RefreshCw } from "lucide-react";
+import { Clock3, Gauge, Play, RefreshCw, Square } from "lucide-react";
 import { TEST_OPTIONS } from "../data/demoConfig";
 import type { FormState } from "../types/demo";
 import { SectionHeader } from "./SectionHeader";
@@ -10,9 +10,11 @@ type ControlPanelProps = {
 		completed: number;
 		total: number;
 	} | null;
+	isStopRequested: boolean;
 	onChange: (partial: Partial<FormState>) => void;
 	onRunSingle: () => void;
 	onRunSeries: () => void;
+	onStopTests: () => void;
 };
 
 const usesDuration = (testType: FormState["testType"]) =>
@@ -28,9 +30,11 @@ export function ControlPanel({
 	form,
 	isRunning,
 	sequenceProgress,
+	isStopRequested,
 	onChange,
 	onRunSingle,
 	onRunSeries,
+	onStopTests,
 }: ControlPanelProps) {
 	return (
 		<section className="surface-card p-6 sm:p-7">
@@ -211,11 +215,23 @@ export function ControlPanel({
 						<Play className="size-4" />
 						Lancer une serie
 					</button>
+					{isRunning ? (
+						<button
+							className="btn btn-outline btn-error rounded-full px-6"
+							onClick={onStopTests}
+							disabled={isStopRequested}
+						>
+							<Square className="size-4" />
+							{isStopRequested ? "Arret demande" : "Arreter les tests"}
+						</button>
+					) : null}
 				</div>
 
 				{sequenceProgress ? (
 					<div className="rounded-[1.3rem] border border-base-300/70 bg-base-200/50 px-4 py-3 text-sm text-base-content/72">
-						Serie en cours: {sequenceProgress.completed}/{sequenceProgress.total}
+						{isStopRequested
+							? "Arret manuel demande. La campagne est en train de s interrompre."
+							: `Serie en cours: ${sequenceProgress.completed}/${sequenceProgress.total}`}
 					</div>
 				) : null}
 			</div>
