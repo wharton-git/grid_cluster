@@ -793,7 +793,7 @@ function App() {
 
 	return (
 		<div className="min-h-screen">
-			<div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+			<div className="mx-auto flex w-full max-w-3/4 flex-col gap-8 px-6 py-8">
 				<HeroSection
 					backendState={backendState}
 					observedPodCount={liveObservedPods.length}
@@ -826,7 +826,7 @@ function App() {
 					appRuntimeState={appRuntimeState}
 				/>
 
-				<div className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
+				<div className="grid grid-cols-[1.02fr_0.98fr] gap-6">
 					<div className="flex flex-col gap-6">
 						<div id="test-section" className="scroll-mt-24">
 							<ControlPanel

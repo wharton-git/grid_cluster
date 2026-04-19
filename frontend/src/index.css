@@ -71,7 +71,7 @@
 
 @layer components {
   .surface-card {
-    @apply rounded-[1.4rem] border border-base-300/70 bg-base-100/85 shadow-[0_24px_70px_-40px_rgba(24,24,27,0.35)] backdrop-blur sm:rounded-[1.75rem];
+    @apply rounded-[1.4rem] border border-base-300/70 bg-base-100/85 shadow-[0_24px_70px_-40px_rgba(24,24,27,0.35)] backdrop-blur;
   }
 
   .surface-grid {
@@ -83,10 +83,10 @@
   }
 
   .section-title {
-    @apply text-xl font-semibold tracking-tight text-primary sm:text-2xl md:text-3xl;
+    @apply text-sm font-semibold tracking-tight text-primary;
   }
 
   .section-copy {
-    @apply max-w-2xl text-sm leading-6 text-base-content/70 md:text-base;
+    @apply max-w-2xl text-xs leading-5 text-base-content/70;
   }
 }

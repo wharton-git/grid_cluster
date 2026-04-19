@@ -12,7 +12,7 @@ type ObservedPodsProps = {
 
 export function ObservedPods({ pods }: ObservedPodsProps) {
 	return (
-		<section className="surface-card p-5 sm:p-7">
+		<section className="surface-card p-6">
 			<div className="flex flex-col gap-6">
 				<SectionHeader
 					eyebrow="Observed Pods"
@@ -40,7 +40,7 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 
 				<div className="grid gap-4">
 					{pods.length === 0 ? (
-						<div className="rounded-[1.4rem] border border-dashed border-base-300/80 bg-base-200/45 p-6 text-sm text-base-content/65">
+						<div className="rounded-[1.4rem] border border-dashed border-base-300/80 bg-base-200/45 p-6 text-[0.72rem] text-base-content/65">
 							Aucun pod n a encore ete observe par le monitoring backend.
 						</div>
 					) : (
@@ -50,51 +50,49 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 								className="rounded-3xl border border-base-300/75 bg-base-200/42 p-4"
 							>
 								<div className="flex items-center gap-3 ">
-									<div className="">
+									<div>
 										<div className="rounded-2xl bg-base-100 p-3 text-primary shadow-sm">
 											<Server className="size-6" />
 										</div>
-
 									</div>
 
 									<div className="flex flex-col flex-1 space-y-2">
 										<div className="min-w-0">
-											<p className="font-semibold text-primary sm:break-normal flex justify-between">
-												<span className="mr-2 text-2xl">{pod.podName}</span>
-												<span className="text-sm text-base-content/60">
+											<div className="flex flex-wrap items-center justify-between gap-2 font-semibold text-primary">
+												<span className="mr-2 text-sm">{pod.podName}</span>
+												<span className="text-[0.7rem] text-base-content/60">
 													(Dernier passage a {formatCompactTimestamp(pod.lastSeen)})
 												</span>
-												{!pod.hasBackendSnapshot ? (
-													<p className="text-xs text-base-content/52">
-														Snapshot /api/status en attente pour ce pod.
-													</p>
-												) : null}
-											</p>
-
+											</div>
+											{!pod.hasBackendSnapshot ? (
+												<p className="mt-1 text-xs text-base-content/52">
+													Snapshot /api/status en attente pour ce pod.
+												</p>
+											) : null}
 										</div>
 
 										<div className="flex justify-between">
 											<div>
-												<p className="text-base-content/55">Requetes</p>
-												<p className="font-semibold text-primary">
+												<p className="text-xs text-base-content/55">Requetes</p>
+												<p className="text-xs font-semibold text-primary">
 													{pod.requestCount ?? "n/d"}
 												</p>
 											</div>
 											<div>
-												<p className="text-base-content/55">In flight</p>
-												<p className="font-semibold text-primary">
+												<p className="text-xs text-base-content/55">In flight</p>
+												<p className="text-xs font-semibold text-primary">
 													{pod.inFlightRequests ?? "n/d"}
 												</p>
 											</div>
 											<div>
-												<p className="text-base-content/55">Erreurs</p>
-												<p className="font-semibold text-primary">
+												<p className="text-xs text-base-content/55">Erreurs</p>
+												<p className="text-xs font-semibold text-primary">
 													{pod.errorCount ?? "n/d"}
 												</p>
 											</div>
 											<div>
-												<p className="text-base-content/55">Latence moy.</p>
-												<p className="font-semibold text-primary">
+												<p className="text-xs text-base-content/55">Latence moy.</p>
+												<p className="text-xs font-semibold text-primary">
 													{pod.averageResponseTimeMs === null
 														? "n/d"
 														: formatAverage(pod.averageResponseTimeMs)}

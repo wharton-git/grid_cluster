@@ -12,7 +12,7 @@ export function SectionHeader({
 	return (
 		<div className="flex flex-col gap-2">
 			{eyebrow ? (
-				<span className="badge badge-outline w-fit rounded-full border-base-300 px-4 py-3 text-[0.7rem] uppercase tracking-[0.24em] text-base-content/65">
+				<span className="badge badge-outline w-fit rounded-full border-base-300 px-3 py-2 text-[0.58rem] uppercase tracking-[0.18em] text-base-content/65">
 					{eyebrow}
 				</span>
 			) : null}

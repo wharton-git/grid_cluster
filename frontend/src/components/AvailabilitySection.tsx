@@ -30,7 +30,7 @@ const principles = [
 
 export function AvailabilitySection() {
 	return (
-		<section className="surface-card p-6 sm:p-7">
+		<section className="surface-card p-6">
 			<div className="flex flex-col gap-6">
 				<SectionHeader
 					eyebrow="High Availability"
@@ -38,7 +38,7 @@ export function AvailabilitySection() {
 					description="Cette application est pensee comme un support de demonstration. Elle aide a expliquer pourquoi plusieurs replicas, des probes correctes et un HPA CPU rendent le service resilient et observable sur GKE."
 				/>
 
-				<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+				<div className="grid grid-cols-4 gap-4">
 					{principles.map((principle) => {
 						const Icon = principle.icon;
 
@@ -50,10 +50,10 @@ export function AvailabilitySection() {
 								<div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-base-100 text-primary shadow-sm">
 									<Icon className="size-5" />
 								</div>
-								<h3 className="text-lg font-semibold text-primary">
+								<h3 className="text-xs font-semibold text-primary">
 									{principle.title}
 								</h3>
-								<p className="mt-3 text-sm leading-6 text-base-content/68">
+								<p className="mt-3 text-[0.72rem] leading-5 text-base-content/68">
 									{principle.description}
 								</p>
 							</article>

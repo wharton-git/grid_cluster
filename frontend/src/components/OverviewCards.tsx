@@ -3,7 +3,6 @@ import {
 	Clock3,
 	RefreshCw,
 	Server,
-	ShieldCheck,
 } from "lucide-react";
 import { formatAverage } from "../lib/format";
 import type {
@@ -65,10 +64,10 @@ export function OverviewCards({
 	appRuntimeState,
 }: OverviewCardsProps) {
 	return (
-		<section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+		<section className="grid grid-cols-3 gap-4">
 			<div className="surface-card p-5">
 				<div className="mb-4 flex items-center justify-between">
-					<div className="flex min-w-0 items-center gap-2 text-sm text-base-content/60">
+					<div className="flex min-w-0 items-center gap-2 text-[0.7rem] text-base-content/60">
 						<Activity className="size-4" />
 						Disponibilite backend
 					</div>
@@ -76,42 +75,29 @@ export function OverviewCards({
 						{availabilityLabel(backendState)}
 					</span>
 				</div>
-				<p className="text-2xl font-semibold text-primary sm:text-3xl">
+				<p className="text-base font-semibold text-primary">
 					{latestStatus?.requestCount ?? 0}
 				</p>
-				<p className="mt-2 text-sm text-base-content/68">
+				<p className="mt-2 text-[0.72rem] text-base-content/68">
 					Requetes traitees par le pod le plus recemment observe. Moyenne
 					client: {formatAverage(averageClientLatencyMs)}.
 				</p>
 			</div>
 
 			<div className="surface-card p-5">
-				<div className="mb-4 flex min-w-0 items-center gap-2 text-sm text-base-content/60">
+				<div className="mb-4 flex min-w-0 items-center gap-2 text-[0.7rem] text-base-content/60">
 					<Server className="size-4" />
 					Pods observes
 				</div>
-				<p className="text-2xl font-semibold text-primary sm:text-3xl">{observedPodCount}</p>
-				<p className="mt-2 text-sm text-base-content/68">
+				<p className="text-base font-semibold text-primary">{observedPodCount}</p>
+				<p className="mt-2 text-[0.72rem] text-base-content/68">
 					Dernier pod repondu: {latestPodName ?? "aucun"}.
 				</p>
 			</div>
 
 			<div className="surface-card p-5">
-				<div className="mb-4 flex min-w-0 items-center gap-2 text-sm text-base-content/60">
-					<ShieldCheck className="size-4" />
-					Execution pod locale
-				</div>
-				<p className="text-2xl font-semibold text-primary sm:text-3xl">
-					{latestStatus?.inFlightRequests ?? 0}
-				</p>
-				<p className="mt-2 text-sm text-base-content/68">
-					In-flight en ce moment. Erreurs cumulees: {latestStatus?.errorCount ?? 0}.
-				</p>
-			</div>
-
-			<div className="surface-card p-5">
 				<div className="mb-4 flex items-center justify-between">
-					<div className="flex min-w-0 items-center gap-2 text-sm text-base-content/60">
+					<div className="flex min-w-0 items-center gap-2 text-[0.7rem] text-base-content/60">
 						<Clock3 className="size-4" />
 						Runtime demo
 					</div>
@@ -119,10 +105,10 @@ export function OverviewCards({
 						<RefreshCw className="size-4 animate-spin text-base-content/55" />
 					) : null}
 				</div>
-				<p className="text-2xl font-semibold text-primary sm:text-3xl">
+				<p className="text-base font-semibold text-primary">
 					{loggedRequestCount}
 				</p>
-				<p className="mt-2 text-sm text-base-content/68">
+				<p className="mt-2 text-[0.72rem] text-base-content/68">
 					Appels journalises. Env: {latestInfo?.environment ?? "indetermine"}.
 					Region: {latestInfo?.region ?? "inconnue"}. Etat app:{" "}
 					{appRuntimeState === "idle"

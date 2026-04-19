@@ -31,7 +31,7 @@ export function RequestResults({
 		requests.find((request) => request.id === selectedRequestId) ?? requests[0] ?? null;
 
 	return (
-		<section className="surface-card p-6 sm:p-7">
+		<section className="surface-card p-6">
 			<div className="flex flex-col gap-6">
 				<SectionHeader
 					eyebrow="Recent Calls"
@@ -39,70 +39,10 @@ export function RequestResults({
 					description="Le journal recent affiche l endpoint appele, le temps de reponse, le pod source, le statut HTTP et les parametres utilises. Clique une ligne pour inspecter la reponse brute."
 				/>
 
-				<div className="grid gap-3 md:hidden">
-					{requests.length === 0 ? (
-						<div className="rounded-[1.4rem] border border-base-300/75 bg-base-200/45 px-4 py-6 text-center text-sm text-base-content/60">
-							Aucun appel recent pour le moment.
-						</div>
-					) : (
-						requests.map((request) => (
-							<article
-								key={request.id}
-								className={`rounded-[1.35rem] border px-4 py-4 ${
-									selectedRequestId === request.id
-										? "border-base-300 bg-base-200/60"
-										: "border-base-300/75 bg-base-100/75"
-								}`}
-							>
-								<div className="flex items-start justify-between gap-3">
-									<div className="min-w-0">
-										<p className="truncate font-medium text-primary">
-											{request.endpoint}
-										</p>
-										<p className="mt-1 text-sm text-base-content/60">
-											Pod: {request.podName}
-										</p>
-									</div>
-									<span className={statusBadgeClass(request)}>
-										{request.statusCode === 0 ? "network" : request.statusCode}
-									</span>
-								</div>
-								<div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-									<div>
-										<p className="text-base-content/55">Temps</p>
-										<p className="font-medium text-primary">
-											{formatDuration(request.durationMs)}
-										</p>
-									</div>
-									<div>
-										<p className="text-base-content/55">Horaire</p>
-										<p className="font-medium text-primary">
-											{formatCompactTimestamp(request.timestamp)}
-										</p>
-									</div>
-									<div className="col-span-2">
-										<p className="text-base-content/55">Parametres</p>
-										<p className="truncate font-medium text-primary">
-											{request.paramsLabel}
-										</p>
-									</div>
-								</div>
-								<button
-									className="btn btn-ghost btn-sm mt-4 w-full justify-center rounded-full"
-									onClick={() => onSelectRequest(request.id)}
-								>
-									<Eye className="size-4" />
-									Voir le detail
-								</button>
-							</article>
-						))
-					)}
-				</div>
-
-				<div className="hidden overflow-hidden rounded-[1.5rem] border border-base-300/75 md:block">
+				<div className="overflow-hidden rounded-[1.5rem] border border-base-300/75">
 					<div className="overflow-x-auto">
-						<table className="table">
-							<thead className="bg-base-200/75 text-base-content/65">
+						<table className="table text-xs">
+							<thead className="bg-base-200/75 text-[0.7rem] text-base-content/65">
 								<tr>
 									<th>Endpoint</th>
 									<th>Pod</th>
@@ -116,7 +56,7 @@ export function RequestResults({
 							<tbody>
 								{requests.length === 0 ? (
 									<tr>
-										<td colSpan={7} className="py-8 text-center text-base-content/60">
+										<td colSpan={7} className="py-8 text-center text-xs text-base-content/60">
 											Aucun appel recent pour le moment.
 										</td>
 									</tr>
@@ -160,9 +100,9 @@ export function RequestResults({
 					</div>
 				</div>
 
-				<div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-					<div className="rounded-[1.5rem] border border-base-300/75 bg-base-200/45 p-4 sm:p-5">
-						<div className="mb-4 flex items-center gap-2 text-sm text-base-content/60">
+				<div className="grid grid-cols-[0.9fr_1.1fr] gap-4">
+					<div className="rounded-[1.5rem] border border-base-300/75 bg-base-200/45 p-5">
+						<div className="mb-4 flex items-center gap-2 text-xs text-base-content/60">
 							{selectedRequest?.ok ? (
 								<CheckCircle2 className="size-4 text-success" />
 							) : (
@@ -172,7 +112,7 @@ export function RequestResults({
 						</div>
 
 						{selectedRequest ? (
-							<div className="space-y-3 text-sm">
+							<div className="space-y-3 text-[0.72rem]">
 								<p>
 									<span className="font-medium text-primary">Endpoint:</span>{" "}
 									<span className="break-all">{selectedRequest.endpoint}</span>
@@ -203,22 +143,22 @@ export function RequestResults({
 								) : null}
 							</div>
 						) : (
-							<p className="text-sm text-base-content/65">
+							<p className="text-[0.72rem] text-base-content/65">
 								Selectionne une ligne du journal pour afficher plus de details.
 							</p>
 						)}
 					</div>
 
 					<div className="rounded-[1.5rem] border border-base-300/75 bg-neutral text-neutral-content">
-						<div className="border-b border-white/10 px-4 py-4 sm:px-5">
+						<div className="border-b border-white/10 px-5 py-4">
 							<p className="text-xs uppercase tracking-[0.22em] text-white/55">
 								JSON payload
 							</p>
-							<p className="mt-1 text-lg font-semibold">
+							<p className="mt-1 text-xs font-semibold">
 								Reponse brute de l API backend
 							</p>
 						</div>
-						<pre className="max-h-[22rem] overflow-auto px-4 py-4 text-xs leading-6 text-white/88 sm:max-h-[26rem] sm:px-5 sm:text-sm">
+						<pre className="max-h-[26rem] overflow-auto px-5 py-4 text-[0.68rem] leading-5 text-white/88">
 							{selectedRequest
 								? serializePayload(selectedRequest.response)
 								: "Aucune reponse selectionnee."}

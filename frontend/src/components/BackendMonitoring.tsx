@@ -78,7 +78,7 @@ export function BackendMonitoring({
 	onToggleMonitoring,
 }: BackendMonitoringProps) {
 	return (
-		<section className="surface-card p-5 sm:p-7">
+		<section className="surface-card p-6">
 			<div className="flex flex-col gap-6">
 				<SectionHeader
 					eyebrow="Backend Monitoring"
@@ -86,9 +86,9 @@ export function BackendMonitoring({
 					description="Aucun appel n est envoye au chargement. Tu peux verifier le backend manuellement ou activer un monitoring leger avec intervalle long, sans polluer le tableau principal."
 				/>
 
-				<div className="grid gap-4 rounded-[1.4rem] border border-base-300/70 bg-base-200/55 p-4 sm:grid-cols-2 xl:grid-cols-4">
+				<div className="grid grid-cols-4 gap-4 rounded-[1.4rem] border border-base-300/70 bg-base-200/55 p-4">
 					<div>
-						<p className="mb-2 text-sm text-base-content/58">Etat</p>
+						<p className="mb-2 text-xs text-base-content/58">Etat</p>
 						<div className="flex flex-wrap items-center gap-2">
 							<span className={stateBadgeClass(backendState)}>
 								{stateLabel(backendState)}
@@ -99,8 +99,8 @@ export function BackendMonitoring({
 						</div>
 					</div>
 					<div>
-						<p className="mb-2 text-sm text-base-content/58">Activite app</p>
-						<p className="text-sm font-medium text-primary">
+						<p className="mb-2 text-xs text-base-content/58">Activite app</p>
+						<p className="text-xs font-medium text-primary">
 							{appRuntimeState === "idle"
 								? "idle"
 								: appRuntimeState === "test_running"
@@ -111,14 +111,14 @@ export function BackendMonitoring({
 						</p>
 					</div>
 					<div>
-						<p className="mb-2 text-sm text-base-content/58">Monitoring</p>
-						<p className="text-sm font-medium text-primary">
+						<p className="mb-2 text-xs text-base-content/58">Monitoring</p>
+						<p className="text-xs font-medium text-primary">
 							{isMonitoringActive ? monitoringModeLabel : "Arrete"}
 						</p>
 					</div>
 					<div>
-						<p className="mb-2 text-sm text-base-content/58">Derniere verification</p>
-						<p className="text-sm font-medium text-primary">
+						<p className="mb-2 text-xs text-base-content/58">Derniere verification</p>
+						<p className="text-xs font-medium text-primary">
 							{lastBackendCheckAt
 								? formatCompactTimestamp(lastBackendCheckAt)
 								: "Aucune encore"}
@@ -126,9 +126,9 @@ export function BackendMonitoring({
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+				<div className="flex flex-row flex-wrap gap-3">
 					<button
-						className="btn btn-primary w-full justify-center rounded-full px-6 sm:w-auto"
+						className="btn btn-primary w-auto justify-center rounded-full px-6"
 						onClick={onCheckBackend}
 						disabled={isCheckingBackend}
 					>
@@ -136,7 +136,7 @@ export function BackendMonitoring({
 						Check backend
 					</button>
 					<button
-						className="btn btn-neutral w-full justify-center rounded-full px-6 sm:w-auto"
+						className="btn btn-neutral w-auto justify-center rounded-full px-6"
 						onClick={onToggleMonitoring}
 					>
 						{isManualMonitoringEnabled ? (
@@ -150,19 +150,19 @@ export function BackendMonitoring({
 					</button>
 				</div>
 				{isStopRequested ? (
-					<div className="rounded-[1.2rem] border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning">
+					<div className="rounded-[1.2rem] border border-warning/20 bg-warning/10 px-4 py-3 text-xs text-warning">
 						Arret manuel demande. Les nouvelles requetes de test sont bloquees et
 						le monitoring temporaire associe est en train de s arreter.
 					</div>
 				) : null}
 
-				<div className="grid gap-4 lg:grid-cols-2">
+				<div className="grid grid-cols-2 gap-4">
 					<div className="rounded-[1.5rem] border border-base-300/75 bg-base-200/45 p-5">
-						<div className="mb-4 flex items-center gap-2 text-sm text-base-content/60">
+						<div className="mb-4 flex items-center gap-2 text-xs text-base-content/60">
 							<Clock3 className="size-4" />
 							Snapshot backend
 						</div>
-						<div className="space-y-3 text-sm">
+						<div className="space-y-3 text-xs">
 							<p>
 								<span className="font-medium text-primary">Pod:</span>{" "}
 								{latestStatus?.podName ?? latestInfo?.podName ?? "inconnu"}
@@ -190,14 +190,14 @@ export function BackendMonitoring({
 						</div>
 					</div>
 
-					<div className="rounded-[1.5rem] max-h-[24rem] overflow-y-auto border border-base-300/75 bg-base-200/45 p-5 sm:max-h-[28rem]">
-						<div className="mb-4 flex items-center gap-2 text-sm text-base-content/60">
+					<div className="rounded-[1.5rem] max-h-[28rem] overflow-y-auto border border-base-300/75 bg-base-200/45 p-5">
+						<div className="mb-4 flex items-center gap-2 text-xs text-base-content/60">
 							<CheckCircle2 className="size-4" />
 							Historique monitoring
 						</div>
 						<div className="space-y-3">
 							{monitoringRequests.length === 0 ? (
-								<p className="text-sm text-base-content/65">
+								<p className="text-xs text-base-content/65">
 									Aucun check backend pour le moment. Le service reste idle
 									tant que tu ne cliques pas.
 								</p>
@@ -205,17 +205,17 @@ export function BackendMonitoring({
 								monitoringRequests.map((request) => (
 									<div
 										key={request.id}
-										className="flex flex-col gap-3 rounded-[1.15rem] border border-base-300/70 bg-base-100/75 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+										className="flex flex-row items-center justify-between gap-3 rounded-[1.15rem] border border-base-300/70 bg-base-100/75 px-4 py-3"
 									>
 										<div>
-											<p className="text-sm font-medium text-primary">
+											<p className="text-xs font-medium text-primary">
 												{request.endpoint}
 											</p>
 											<p className="text-xs text-base-content/58">
 												{formatTimestamp(request.timestamp)}
 											</p>
 										</div>
-										<div className="text-sm sm:text-right">
+										<div className="text-right text-xs">
 											<p className="font-medium text-primary">{request.podName}</p>
 											<p className="text-base-content/58">
 												{request.statusCode === 0

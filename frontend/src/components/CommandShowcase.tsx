@@ -19,7 +19,7 @@ export function CommandShowcase() {
 	};
 
 	return (
-		<section className="surface-card p-5 sm:p-7">
+		<section className="surface-card p-6">
 			<div className="flex flex-col gap-6">
 				<SectionHeader
 					eyebrow="Apache Bench"
@@ -27,14 +27,14 @@ export function CommandShowcase() {
 					description="Ces commandes ne sont pas executees par le frontend. Elles sont presentes pour la soutenance ou la demo afin de provoquer un comportement visible cote pods et HPA."
 				/>
 
-				<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+				<div className="grid grid-cols-3 gap-4">
 					{COMMAND_EXAMPLES.map((example) => (
 						<article
 							key={example.id}
 							className="rounded-[1.5rem] border border-base-300/75 bg-base-200/48 p-5"
 						>
-							<div className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-								<div className="flex items-center gap-2 text-sm text-base-content/60">
+							<div className="mb-4 flex flex-row items-center justify-between gap-3">
+								<div className="flex items-center gap-2 text-[0.72rem] text-base-content/60">
 									<Terminal className="size-4" />
 									{example.label}
 								</div>
@@ -46,10 +46,10 @@ export function CommandShowcase() {
 									{copiedId === example.id ? "Copie" : "Copier"}
 								</button>
 							</div>
-							<p className="mb-4 text-sm leading-6 text-base-content/68">
+							<p className="mb-4 text-[0.72rem] leading-5 text-base-content/68">
 								{example.description}
 							</p>
-							<pre className="overflow-auto rounded-[1.25rem] bg-neutral px-4 py-4 text-xs leading-6 text-neutral-content sm:text-sm">
+							<pre className="overflow-auto rounded-[1.25rem] bg-neutral px-4 py-4 text-[0.68rem] leading-5 text-neutral-content">
 								{example.command}
 							</pre>
 						</article>
