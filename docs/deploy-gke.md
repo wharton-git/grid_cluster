@@ -2,6 +2,8 @@
 
 ## 1. Objectif
 
+
+
 Ce document constitue le **guide principal** de déploiement sur Google Kubernetes Engine (GKE).
 
 Le contenu détaillé est réparti dans plusieurs sous-guides afin de séparer clairement :
