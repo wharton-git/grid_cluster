@@ -1,6 +1,6 @@
 # GCP CLI pour deployer sur GKE
 
-> [!IMPORTANT] Pré-requis
+> [!IMPORTANT]
 Il faut avoir un compte Google Cloud Plateform (GCP), installer les SDK, [outils GCP](https://docs.cloud.google.com/sdk/docs/install-sdk#linux "Télécharger Gcloud cli") et [Kubectl](https://kubernetes.io/releases/download/ "Télécharger Kubectl cli").
 
 ## 1. Initialisation CLI
