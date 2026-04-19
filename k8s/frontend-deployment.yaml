@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: europe-west1-docker.pkg.dev/PROJECT_ID/cloud-scaling-demo/frontend:latest
+          image: europe-west1-docker.pkg.dev/project-45a76f06-067f-40f7-9a4/cloud-scaling-demo/frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
