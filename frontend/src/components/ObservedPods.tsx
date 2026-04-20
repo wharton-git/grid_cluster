@@ -1,7 +1,20 @@
-import { ArrowDownUp, CheckCircle2, CircleAlert, ClockFading, Cpu, Globe, MemoryStick, OctagonX, Server } from "lucide-react";
+import {
+	ArrowDownUp,
+	CheckCircle2,
+	CircleAlert,
+	ClockFading,
+	Cpu,
+	Download,
+	Globe,
+	MemoryStick,
+	OctagonX,
+	Server,
+	Upload,
+} from "lucide-react";
 import {
 	formatAverage,
 	formatBytes,
+	formatBytesPerSecond,
 	formatCompactTimestamp,
 	formatDecimal,
 } from "../lib/format";
@@ -78,8 +91,8 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 											) : null}
 										</div>
 
-										<div className="flex items-center justify-between ">
-											<div className="flex items-center gap-1">
+										<div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+											<div className="flex shrink-0 items-center gap-1">
 												<div>
 													<Globe size="17" />
 												</div>
@@ -87,7 +100,7 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 													{pod.requestCount ?? "n/d"}
 												</div>
 											</div>
-											<div className="flex items-center gap-1">
+											<div className="flex shrink-0 items-center gap-1">
 												<div>
 													<OctagonX size="17" />
 												</div>
@@ -95,7 +108,7 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 													{pod.errorCount ?? "n/d"}
 												</div>
 											</div>
-											<div className="flex items-center gap-1">
+											<div className="flex shrink-0 items-center gap-1">
 												<div>
 													<ArrowDownUp size="17" />
 												</div>
@@ -103,7 +116,7 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 													{pod.averageResponseTimeMs === null ? "n/d" : formatAverage(pod.averageResponseTimeMs)}
 												</div>
 											</div>
-											<div className="flex items-center gap-1">
+											<div className="flex shrink-0 items-center gap-1">
 												<div>
 													<MemoryStick size="17" />
 												</div>
@@ -111,7 +124,7 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 													{formatBytes(pod.memoryCgroupCurrentBytes)} / {pod.memoryLimitUnlimited ? "illimitee" : formatBytes(pod.memoryCgroupLimitBytes)}
 												</div>
 											</div>
-											<div className="flex items-center gap-1">
+											<div className="flex shrink-0 items-center gap-1">
 												<div>
 													<Cpu size="17" />
 												</div>
@@ -120,13 +133,43 @@ export function ObservedPods({ pods }: ObservedPodsProps) {
 												</div>
 											</div>
 
-											<div>
-												{/* <p className="text-[0.68rem] text-base-content/55">Quota CPU</p> */}
+											<div className="shrink-0">
 												<p className="text-xs font-semibold text-primary">
 													{pod.cpuQuotaCores === null
 														? "n/d"
 														: formatDecimal(pod.cpuQuotaCores, "coeurs")}
 												</p>
+											</div>
+										</div>
+
+										<div className="flex flex-wrap gap-3 border-t border-base-300/50 pt-2">
+											<div className="flex min-w-[11rem] items-center gap-2 rounded-2xl bg-base-100/70 px-3 py-2">
+												<Download size="16" className="text-primary" />
+												<div className="min-w-0">
+													<p className="text-[0.68rem] text-base-content/55">
+														Bande passante entrante
+													</p>
+													<p className="truncate text-xs font-semibold text-primary">
+														{formatBytesPerSecond(pod.networkRxBytesPerSecond)}
+													</p>
+													<p className="truncate text-[0.68rem] text-base-content/55">
+														Total: {formatBytes(pod.networkRxBytesTotal)}
+													</p>
+												</div>
+											</div>
+											<div className="flex min-w-[11rem] items-center gap-2 rounded-2xl bg-base-100/70 px-3 py-2">
+												<Upload size="16" className="text-primary" />
+												<div className="min-w-0">
+													<p className="text-[0.68rem] text-base-content/55">
+														Bande passante sortante
+													</p>
+													<p className="truncate text-xs font-semibold text-primary">
+														{formatBytesPerSecond(pod.networkTxBytesPerSecond)}
+													</p>
+													<p className="truncate text-[0.68rem] text-base-content/55">
+														Total: {formatBytes(pod.networkTxBytesTotal)}
+													</p>
+												</div>
 											</div>
 										</div>
 									</div>

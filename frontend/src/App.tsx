@@ -38,20 +38,18 @@ const initialForm: FormState = {
 };
 
 const MAIN_REQUEST_LIMIT = 20;
-const MONITORING_REQUEST_LIMIT = 9;
-const MANUAL_MONITORING_INTERVAL_MS = 5000;
+const AUTO_BACKEND_CHECK_INTERVAL_MS = 1000;
 const TEST_STATUS_MONITORING_INTERVAL_MS = 100;
 const TEST_META_MONITORING_INTERVAL_MS = 4000;
 const BACKEND_CHECKS = ["health", "info", "status"] as const;
 const TEST_META_BACKEND_CHECKS = ["health", "info"] as const;
 
 type BackendCheckType = (typeof BACKEND_CHECKS)[number];
-type RequestLogMode = "main" | "monitoring" | "silent";
+type RequestLogMode = "main" | "silent";
 
 type RequestSource =
 	| "user"
-	| "manual_check"
-	| "manual_monitoring"
+	| "auto_monitoring"
 	| "temporary_monitoring"
 	| "post_test_refresh";
 
@@ -159,11 +157,9 @@ const getRuntimeState = (
 function App() {
 	const [form, setForm] = useState<FormState>(initialForm);
 	const [requests, setRequests] = useState<RequestRecord[]>([]);
-	const [monitoringRequests, setMonitoringRequests] = useState<RequestRecord[]>([]);
 	const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
 	const [isRunning, setIsRunning] = useState(false);
 	const [isCheckingBackend, setIsCheckingBackend] = useState(false);
-	const [isMonitoring, setIsMonitoring] = useState(false);
 	const [isTemporaryMonitoring, setIsTemporaryMonitoring] = useState(false);
 	const [isStopRequested, setIsStopRequested] = useState(false);
 	const [sequenceProgress, setSequenceProgress] = useState<{
@@ -198,20 +194,15 @@ function App() {
 	);
 
 	const deferredRequests = useDeferredValue(requests);
-	const deferredMonitoringRequests = useDeferredValue(monitoringRequests);
-	const isMonitoringActive = isMonitoring || isTemporaryMonitoring;
+	const isMonitoringActive = true;
 	const appRuntimeState = getRuntimeState(
 		isRunning,
 		isMonitoringActive,
 		isStopRequested,
 	);
-	const monitoringModeLabel = isMonitoring
-		? isTemporaryMonitoring
-			? "Actif (manuel 5s + test status 0,9s)"
-			: "Actif (manuel | 5s)"
-		: isTemporaryMonitoring
-			? "Actif (test status 0,9s | meta 4s)"
-			: "Arrete";
+	const monitoringModeLabel = isTemporaryMonitoring
+		? "Actif (auto 1s + test status 0,1s)"
+		: "Actif (auto | 1s)";
 	const observedPods = Object.values(observedPodsByName);
 	const liveObservedPods = [...observedPods].sort((left, right) => {
 		const requestCountDifference =
@@ -321,6 +312,22 @@ function App() {
 							null,
 						cpuQuotaCores:
 							resourceSnapshot?.cpuQuotaCores ?? previous?.cpuQuotaCores ?? null,
+						networkRxBytesTotal:
+							resourceSnapshot?.networkRxBytesTotal ??
+							previous?.networkRxBytesTotal ??
+							null,
+						networkTxBytesTotal:
+							resourceSnapshot?.networkTxBytesTotal ??
+							previous?.networkTxBytesTotal ??
+							null,
+						networkRxBytesPerSecond:
+							resourceSnapshot?.networkRxBytesPerSecond ??
+							previous?.networkRxBytesPerSecond ??
+							null,
+						networkTxBytesPerSecond:
+							resourceSnapshot?.networkTxBytesPerSecond ??
+							previous?.networkTxBytesPerSecond ??
+							null,
 						memoryCgroupCurrentBytes:
 							resourceSnapshot?.memoryCgroupCurrentBytes ??
 							previous?.memoryCgroupCurrentBytes ??
@@ -357,12 +364,6 @@ function App() {
 		setSelectedRequestId((current) => current ?? request.id);
 	};
 
-	const appendMonitoringRequest = (request: RequestRecord) => {
-		setMonitoringRequests((current) =>
-			[request, ...current].slice(0, MONITORING_REQUEST_LIMIT),
-		);
-	};
-
 	const performRequest = async (
 		testType: FormState["testType"],
 		options: PerformRequestOptions = {},
@@ -370,7 +371,7 @@ function App() {
 		const {
 			logMode = "main",
 			surfaceErrors = true,
-			source = logMode === "main" ? "user" : "manual_monitoring",
+			source = logMode === "main" ? "user" : "auto_monitoring",
 		} = options;
 		const managedRequest = registerController(
 			logMode === "main" ? "test" : "monitoring",
@@ -386,10 +387,6 @@ function App() {
 			if (!request.cancelled) {
 				if (logMode === "main") {
 					appendMainRequest(request);
-				}
-
-				if (logMode === "monitoring") {
-					appendMonitoringRequest(request);
 				}
 			}
 
@@ -430,11 +427,7 @@ function App() {
 		}
 
 		const refreshPromise = performRequest(testType, {
-			logMode:
-				logMode ??
-				(source === "manual_monitoring" || source === "manual_check"
-					? "monitoring"
-					: "silent"),
+			logMode: logMode ?? "silent",
 			surfaceErrors,
 			source,
 		})
@@ -546,29 +539,40 @@ function App() {
 	);
 
 	useEffect(() => {
-		if (!isMonitoring) {
-			return;
-		}
+		void refreshBackendSnapshot({
+			source: "auto_monitoring",
+			surfaceErrors: false,
+			stopOnNetworkFailure: true,
+			trackCheckingState: true,
+			sections: BACKEND_CHECKS,
+			perSectionLogMode: {
+				health: "silent",
+				info: "silent",
+				status: "silent",
+			},
+			reuseInFlight: true,
+		});
 
 		const intervalId = window.setInterval(() => {
 			void refreshBackendSnapshot({
-				source: "manual_monitoring",
+				source: "auto_monitoring",
 				surfaceErrors: false,
 				stopOnNetworkFailure: true,
+				trackCheckingState: true,
 				sections: BACKEND_CHECKS,
 				perSectionLogMode: {
-					health: "monitoring",
-					info: "monitoring",
-					status: "monitoring",
+					health: "silent",
+					info: "silent",
+					status: "silent",
 				},
-				reuseInFlight: false,
+				reuseInFlight: true,
 			});
-		}, MANUAL_MONITORING_INTERVAL_MS);
+		}, AUTO_BACKEND_CHECK_INTERVAL_MS);
 
 		return () => {
 			window.clearInterval(intervalId);
 		};
-	}, [isMonitoring]);
+	}, []);
 
 	useEffect(() => {
 		if (!isTemporaryMonitoring) {
@@ -746,45 +750,6 @@ function App() {
 		}
 	};
 
-	const handleCheckBackend = async () => {
-		await refreshBackendSnapshotRequest({
-			surfaceErrors: true,
-			stopOnNetworkFailure: false,
-			source: "manual_check",
-			showLoadingState: true,
-			trackCheckingState: true,
-			sections: BACKEND_CHECKS,
-			perSectionLogMode: {
-				health: "monitoring",
-				info: "monitoring",
-				status: "monitoring",
-			},
-		});
-	};
-
-	const handleToggleMonitoring = async () => {
-		if (isMonitoring) {
-			setIsMonitoring(false);
-			abortActiveControllers(
-				(entry) => entry.source === "manual_monitoring",
-			);
-			return;
-		}
-
-		setIsMonitoring(true);
-		await refreshBackendSnapshotRequest({
-			surfaceErrors: false,
-			stopOnNetworkFailure: true,
-			source: "manual_monitoring",
-			sections: BACKEND_CHECKS,
-			perSectionLogMode: {
-				health: "monitoring",
-				info: "monitoring",
-				status: "monitoring",
-			},
-		});
-	};
-
 	const handleStopTests = () => {
 		if (!isRunning) {
 			return;
@@ -852,18 +817,10 @@ function App() {
 								backendState={backendState}
 								appRuntimeState={appRuntimeState}
 								isCheckingBackend={isCheckingBackend}
-								isManualMonitoringEnabled={isMonitoring}
 								isMonitoringActive={isMonitoringActive}
 								monitoringModeLabel={monitoringModeLabel}
 								isStopRequested={isStopRequested}
-								monitoringRequests={deferredMonitoringRequests}
 								lastBackendCheckAt={lastBackendCheckAt}
-								latestInfo={latestInfo}
-								latestStatus={latestStatus}
-								onCheckBackend={handleCheckBackend}
-								onToggleMonitoring={() => {
-									void handleToggleMonitoring();
-								}}
 							/>
 						</div>
 						<div id="test-section" className="scroll-mt-24">

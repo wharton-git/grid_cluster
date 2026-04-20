@@ -19,6 +19,10 @@ type ResourceSnapshot struct {
 	GOMAXPROCS               int      `json:"goMaxProcs"`
 	CPUQuotaCores            *float64 `json:"cpuQuotaCores,omitempty"`
 	CPUUsageApproxPercent    *float64 `json:"cpuUsageApproxPercent,omitempty"`
+	NetworkRxBytesTotal      *uint64  `json:"networkRxBytesTotal,omitempty"`
+	NetworkTxBytesTotal      *uint64  `json:"networkTxBytesTotal,omitempty"`
+	NetworkRxBytesPerSecond  *float64 `json:"networkRxBytesPerSecond,omitempty"`
+	NetworkTxBytesPerSecond  *float64 `json:"networkTxBytesPerSecond,omitempty"`
 	MemoryGoAllocBytes       uint64   `json:"memoryGoAllocBytes"`
 	MemoryGoSysBytes         uint64   `json:"memoryGoSysBytes"`
 	MemoryCgroupCurrentBytes *uint64  `json:"memoryCgroupCurrentBytes,omitempty"`
@@ -33,11 +37,18 @@ type Collector struct {
 	now           func() time.Time
 	cgroup        cgroupReader
 	lastCPUSample cpuUsageSample
+	lastNetSample networkUsageSample
 }
 
 type cpuUsageSample struct {
 	measuredAt time.Time
 	usageNS    uint64
+}
+
+type networkUsageSample struct {
+	measuredAt time.Time
+	rxBytes    uint64
+	txBytes    uint64
 }
 
 func NewCollector() *Collector {
@@ -74,11 +85,14 @@ func (c *Collector) snapshot(includeCPUUsage bool) ResourceSnapshot {
 	memoryLimit, memoryUnlimited := c.cgroup.readMemoryLimitBytes()
 	cpuQuota := c.cgroup.readCPUQuotaCores()
 	cpuUsageNS := c.cgroup.readCPUUsageNanoseconds()
+	networkRxBytes, networkTxBytes := readNetworkTotalsBytes(c.cgroup.procRoot)
 
 	snapshot.MemoryCgroupCurrentBytes = memoryCurrent
 	snapshot.MemoryCgroupLimitBytes = memoryLimit
 	snapshot.MemoryLimitUnlimited = memoryUnlimited
 	snapshot.CPUQuotaCores = cpuQuota
+	snapshot.NetworkRxBytesTotal = networkRxBytes
+	snapshot.NetworkTxBytesTotal = networkTxBytes
 	if includeCPUUsage {
 		snapshot.CPUUsageApproxPercent = c.sampleCPUUsage(
 			now,
@@ -86,6 +100,11 @@ func (c *Collector) snapshot(includeCPUUsage bool) ResourceSnapshot {
 			cpuQuota,
 			snapshot.GOMAXPROCS,
 			snapshot.CPULogicalCores,
+		)
+		snapshot.NetworkRxBytesPerSecond, snapshot.NetworkTxBytesPerSecond = c.sampleNetworkUsage(
+			now,
+			networkRxBytes,
+			networkTxBytes,
 		)
 	}
 
@@ -133,6 +152,45 @@ func (c *Collector) sampleCPUUsage(
 	}
 
 	return ptrFloat64(usagePercent)
+}
+
+func (c *Collector) sampleNetworkUsage(
+	now time.Time,
+	rxBytes *uint64,
+	txBytes *uint64,
+) (*float64, *float64) {
+	if rxBytes == nil || txBytes == nil {
+		return nil, nil
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	previous := c.lastNetSample
+	c.lastNetSample = networkUsageSample{
+		measuredAt: now,
+		rxBytes:    *rxBytes,
+		txBytes:    *txBytes,
+	}
+
+	if previous.measuredAt.IsZero() ||
+		*rxBytes < previous.rxBytes ||
+		*txBytes < previous.txBytes {
+		return nil, nil
+	}
+
+	elapsedSeconds := now.Sub(previous.measuredAt).Seconds()
+	if elapsedSeconds <= 0 {
+		return nil, nil
+	}
+
+	rxRate := float64(*rxBytes-previous.rxBytes) / elapsedSeconds
+	txRate := float64(*txBytes-previous.txBytes) / elapsedSeconds
+	if rxRate < 0 || txRate < 0 {
+		return nil, nil
+	}
+
+	return ptrFloat64(rxRate), ptrFloat64(txRate)
 }
 
 func resolveAvailableCores(cpuQuotaCores *float64, goMaxProcs int, cpuLogicalCores int) float64 {
@@ -444,6 +502,65 @@ func parseV2CPUUsage(raw string) *uint64 {
 	}
 
 	return nil
+}
+
+func readNetworkTotalsBytes(procRoot string) (*uint64, *uint64) {
+	content, err := os.ReadFile(filepath.Join(procRoot, "net", "dev"))
+	if err != nil {
+		return nil, nil
+	}
+
+	return parseNetworkTotals(content)
+}
+
+func parseNetworkTotals(raw []byte) (*uint64, *uint64) {
+	scanner := bufio.NewScanner(bytes.NewReader(raw))
+	lineNumber := 0
+	var rxTotal uint64
+	var txTotal uint64
+	foundValue := false
+
+	for scanner.Scan() {
+		lineNumber += 1
+		if lineNumber <= 2 {
+			continue
+		}
+
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		fields := strings.Fields(parts[1])
+		if len(fields) < 16 {
+			continue
+		}
+
+		rxBytes, err := parseUint64(fields[0])
+		if err != nil {
+			continue
+		}
+
+		txBytes, err := parseUint64(fields[8])
+		if err != nil {
+			continue
+		}
+
+		rxTotal += rxBytes
+		txTotal += txBytes
+		foundValue = true
+	}
+
+	if err := scanner.Err(); err != nil || !foundValue {
+		return nil, nil
+	}
+
+	return ptrUint64(rxTotal), ptrUint64(txTotal)
 }
 
 func parseV1Mounts(mountInfoPath string) map[string]string {

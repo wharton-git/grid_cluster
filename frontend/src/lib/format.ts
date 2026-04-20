@@ -56,6 +56,11 @@ export const formatBytes = (value: number | null | undefined) => {
 	return `${decimalFormatter.format(size)} ${units[unitIndex]}`;
 };
 
+export const formatBytesPerSecond = (value: number | null | undefined) => {
+	const formatted = formatBytes(value);
+	return formatted === "n/d" ? formatted : `${formatted}/s`;
+};
+
 export const serializePayload = (payload: unknown) => {
 	try {
 		return JSON.stringify(payload, null, 2);

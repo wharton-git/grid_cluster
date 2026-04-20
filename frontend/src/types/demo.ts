@@ -38,6 +38,10 @@ export type ResourceSnapshot = {
 	goMaxProcs: number;
 	cpuQuotaCores?: number | null;
 	cpuUsageApproxPercent?: number | null;
+	networkRxBytesTotal?: number | null;
+	networkTxBytesTotal?: number | null;
+	networkRxBytesPerSecond?: number | null;
+	networkTxBytesPerSecond?: number | null;
 	memoryGoAllocBytes: number;
 	memoryGoSysBytes: number;
 	memoryCgroupCurrentBytes?: number | null;
@@ -87,6 +91,10 @@ export type PodObservation = {
 	averageResponseTimeMs: number | null;
 	cpuUsageApproxPercent: number | null;
 	cpuQuotaCores: number | null;
+	networkRxBytesTotal: number | null;
+	networkTxBytesTotal: number | null;
+	networkRxBytesPerSecond: number | null;
+	networkTxBytesPerSecond: number | null;
 	memoryCgroupCurrentBytes: number | null;
 	memoryCgroupLimitBytes: number | null;
 	memoryLimitUnlimited: boolean;
